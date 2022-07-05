@@ -1,3 +1,0 @@
-/home/itmosha/CLionProjects/text_editor/cmake-build-debug/CMakeFiles/text_editor.dir
-/home/itmosha/CLionProjects/text_editor/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/itmosha/CLionProjects/text_editor/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -1,4 +1,0 @@
-/home/itmosha/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/221.5080.224/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/itmosha/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/221.5080.224/bin/ninja/linux/ninja -G Ninja -S /home/itmosha/CLionProjects/text_editor -B /home/itmosha/CLionProjects/text_editor/cmake-build-debug
--- Configuring done
--- Generating done
--- Build files have been written to: /home/itmosha/CLionProjects/text_editor/cmake-build-debug
