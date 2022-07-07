@@ -16,6 +16,7 @@
 #define APPEND_BUFFER_INIT {NULL, 0}
 
 struct editor_config {
+    int cx, cy;
     int screenrows;
     int screencols;
     struct termios orig_termios;
@@ -25,6 +26,13 @@ struct editor_config E;
 struct append_buffer {
     char* b;
     size_t len;
+};
+
+enum editor_key {
+    ARROW_LEFT = 1000,
+    ARROW_UP = 1001,
+    ARROW_DOWN = 1002,
+    ARROW_RIGHT = 1003
 };
 
 void init_editor();
@@ -37,6 +45,7 @@ void ab_append(struct append_buffer* ab, const char* s, int len);
 void ab_free(struct append_buffer* ab);
 
 void editor_execute_keypress();
+void editor_move_cursor(int key);
 
 void kill(const char* error_message);
 

@@ -5,7 +5,7 @@
 
 #define EDITOR_VERSION "0.0.1"
 
-char editor_read_key();
+int editor_read_key();
 void editor_refresh_screen();
 void editor_draw_rows(struct append_buffer* ab);
 
