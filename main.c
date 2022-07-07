@@ -1,8 +1,11 @@
 #include "src/system_functions.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
     enable_raw_mode();
-    init_editor();
+    editor_init();
+    if (argc >= 2) {
+        editor_open(argv[1]);
+    }
 
     while (1) {
         editor_refresh_screen();

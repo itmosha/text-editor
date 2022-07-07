@@ -2,3 +2,4 @@ cmake-build-debug
 text_editor
 CMakeLists.txt
 .idea
+sometext.txt

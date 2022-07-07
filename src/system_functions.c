@@ -94,9 +94,12 @@ int get_window_size(int* rows, int* cols) {
     }
 }
 
-void init_editor() {
+void editor_init() {
     E.cx = 0;
     E.cy = 0;
+    E.num_rows = 0;
+    E.rowoff = 0;
+    E.row = NULL;
 
    if (get_window_size(&E.screenrows, &E.screencols) == -1)
         kill("Unable to get window size");
@@ -138,10 +141,10 @@ void editor_move_cursor(int key) {
         case ARROW_LEFT:
             if (E.cx != 0) E.cx--;
             break;
-        case ARROW_UP:
+        case ARROW_DOWN:
             if (E.cy != 0) E.cy--;
             break;
-        case ARROW_DOWN:
+        case ARROW_UP:
             if (E.cy != E.screenrows - 1) E.cy++;
             break;
         case ARROW_RIGHT:
@@ -150,4 +153,33 @@ void editor_move_cursor(int key) {
         default:
             break;
     }
+}
+
+void editor_open(char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (!file) kill("Unable to open file");
+
+    char* line = NULL;
+    size_t linecap = 0;
+    ssize_t linelen;
+
+    while ((linelen = getline(&line, &linecap, file)) != -1) {
+        while (linelen > 0 && (line[linelen - 1] == '\n' || line[linelen - 1] == '\r'))
+            linelen--;
+        editor_append_row(line, linelen);
+    }
+
+    free(line);
+    fclose(file);
+}
+
+void editor_append_row(char* s, size_t len) {
+    E.row = realloc(E.row, sizeof(erow) * (E.num_rows + 1));
+
+    int at = E.num_rows;
+    E.row[at].size = len;
+    E.row[at].chars = malloc(len + 1);
+    memcpy(E.row[at].chars, s, len);
+    E.row[at].chars[len] = '\0';
+    E.num_rows += 1;
 }

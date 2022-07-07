@@ -73,21 +73,30 @@ void editor_refresh_screen() {
 
 void editor_draw_rows(struct append_buffer* ab) {
     for (size_t y = 0; y < E.screenrows; y++) {
-        if (y == E.screenrows / 3) {
-            char welcome[80];
-            int welcomelen = snprintf(welcome, sizeof(welcome), "\x1b[1mText editor -- version %s\x1b[0m", EDITOR_VERSION);
+        int filerow = y + E.rowoff;
+        if (filerow >= E.num_rows) {
+        if (y >= E.num_rows) {
+            if (E.num_rows == 0 && y == E.screenrows / 3) {
+                char welcome[80];
+                int welcomelen = snprintf(welcome, sizeof(welcome), "\x1b[1mText editor -- version %s\x1b[0m",
+                                          EDITOR_VERSION);
 
-            int padding = (E.screencols - welcomelen) / 2;
-            if (padding) {
+                int padding = (E.screencols - welcomelen) / 2;
+                if (padding) {
+                    ab_append(ab, "~", 1);
+                    padding--;
+                }
+                while (padding--) ab_append(ab, " ", 1);
+
+                if (welcomelen > E.screencols) welcomelen = E.screencols;
+                ab_append(ab, welcome, welcomelen);
+            } else {
                 ab_append(ab, "~", 1);
-                padding--;
             }
-            while (padding--) ab_append(ab, " ", 1);
-
-            if (welcomelen > E.screencols) welcomelen = E.screencols;
-            ab_append(ab, welcome, welcomelen);
         } else {
-            ab_append(ab, "~", 1);
+            int len = E.row[filerow].size;
+            if (len > E.screencols) len = E.screencols;
+            ab_append(ab, E.row[filerow].chars, len);
         }
 
         ab_append(ab, "\x1b[K", 3);
