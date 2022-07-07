@@ -48,14 +48,15 @@ int editor_read_key() {
 
         switch (c) {
             case 'h': return ARROW_LEFT;
-            case 'j': return ARROW_UP;
-            case 'k': return ARROW_DOWN;
+            case 'j': return ARROW_DOWN;
+            case 'k': return ARROW_UP;
             case 'l': return ARROW_RIGHT;
         }
     }
 }
 
 void editor_refresh_screen() {
+    editor_scroll();
     struct append_buffer ab = APPEND_BUFFER_INIT;
 
     ab_append(&ab, "\x1b[?25l", 6);
@@ -63,6 +64,7 @@ void editor_refresh_screen() {
     editor_draw_rows(&ab);
 
     char buf[32];
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1, E.cx + 1);
     snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
     ab_append(&ab, buf, strlen(buf));
 
@@ -75,19 +77,16 @@ void editor_draw_rows(struct append_buffer* ab) {
     for (size_t y = 0; y < E.screenrows; y++) {
         int filerow = y + E.rowoff;
         if (filerow >= E.num_rows) {
-        if (y >= E.num_rows) {
             if (E.num_rows == 0 && y == E.screenrows / 3) {
                 char welcome[80];
                 int welcomelen = snprintf(welcome, sizeof(welcome), "\x1b[1mText editor -- version %s\x1b[0m",
                                           EDITOR_VERSION);
-
                 int padding = (E.screencols - welcomelen) / 2;
                 if (padding) {
                     ab_append(ab, "~", 1);
                     padding--;
                 }
                 while (padding--) ab_append(ab, " ", 1);
-
                 if (welcomelen > E.screencols) welcomelen = E.screencols;
                 ab_append(ab, welcome, welcomelen);
             } else {

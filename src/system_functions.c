@@ -141,14 +141,14 @@ void editor_move_cursor(int key) {
         case ARROW_LEFT:
             if (E.cx != 0) E.cx--;
             break;
-        case ARROW_DOWN:
-            if (E.cy != 0) E.cy--;
-            break;
-        case ARROW_UP:
-            if (E.cy != E.screenrows - 1) E.cy++;
-            break;
         case ARROW_RIGHT:
             if (E.cx != E.screencols - 1) E.cx++;
+            break;
+        case ARROW_UP:
+            if (E.cy != 0) E.cy--;
+            break;
+        case ARROW_DOWN:
+            if (E.cy < E.num_rows) E.cy++;
             break;
         default:
             break;
@@ -182,4 +182,9 @@ void editor_append_row(char* s, size_t len) {
     memcpy(E.row[at].chars, s, len);
     E.row[at].chars[len] = '\0';
     E.num_rows += 1;
+}
+
+void editor_scroll() {
+    if (E.cy < E.rowoff) E.rowoff = E.cy;
+    if (E.cy >= E.rowoff + E.screenrows) E.rowoff = E.cy - E.screenrows + 1;
 }
