@@ -32,7 +32,12 @@ enum editor_key {
     ARROW_LEFT = 1000,
     ARROW_UP = 1001,
     ARROW_DOWN = 1002,
-    ARROW_RIGHT = 1003
+    ARROW_RIGHT = 1003,
+    PAGE_UP = 1004,
+    PAGE_DOWN = 1005,
+    HOME_KEY = 1006,
+    END_KEY = 1007,
+    DEL_KEY = 1008
 };
 
 void init_editor();

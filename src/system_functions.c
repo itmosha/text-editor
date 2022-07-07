@@ -46,13 +46,27 @@ void kill(const char* error_message) {
 void editor_execute_keypress() {
     int c = editor_read_key();
 
-    printf("%d\n", c);
     switch (c) {
         case CTRL_KEY('q'):
             write(STDOUT_FILENO, "\x1b[2J", 4);
             write(STDOUT_FILENO, "\x1b[H", 3);
 
             exit(0);
+
+        case HOME_KEY:
+            E.cx = 0;
+            break;
+
+        case END_KEY:
+            E.cx = E.screencols - 1;
+
+        case PAGE_UP:
+        case PAGE_DOWN: {
+            int times = E.screenrows;
+            while (times--) {
+                editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+            }
+        } break;
 
         case ARROW_LEFT:
         case ARROW_UP:
