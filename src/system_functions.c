@@ -99,6 +99,7 @@ void editor_init() {
     E.cy = 0;
     E.num_rows = 0;
     E.rowoff = 0;
+    E.coloff = 0;
     E.row = NULL;
 
    if (get_window_size(&E.screenrows, &E.screencols) == -1)
@@ -142,7 +143,7 @@ void editor_move_cursor(int key) {
             if (E.cx != 0) E.cx--;
             break;
         case ARROW_RIGHT:
-            if (E.cx != E.screencols - 1) E.cx++;
+            E.cx++;
             break;
         case ARROW_UP:
             if (E.cy != 0) E.cy--;
@@ -187,4 +188,6 @@ void editor_append_row(char* s, size_t len) {
 void editor_scroll() {
     if (E.cy < E.rowoff) E.rowoff = E.cy;
     if (E.cy >= E.rowoff + E.screenrows) E.rowoff = E.cy - E.screenrows + 1;
+    if (E.cx < E.coloff) E.coloff = E.cx;
+    if (E.cx >= E.coloff + E.screencols) E.coloff = E.cx - E.screencols + 1;
 }

@@ -31,6 +31,7 @@ struct editor_config {
     int screencols;
     int num_rows;
     int rowoff;
+    int coloff;
     erow *row;
     struct termios orig_termios;
 };
