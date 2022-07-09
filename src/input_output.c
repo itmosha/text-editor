@@ -6,7 +6,7 @@ int editor_read_key() {
 
     while ((read_ = read(STDIN_FILENO, &c, 1)) != 1) {
         if (read_ == -1 && errno != EAGAIN)
-            kill("Unable to read input");
+            kill("Unable to read input in editor_read_key() function");
     }
 
     if (c == '\x1b') {

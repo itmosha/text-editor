@@ -2,10 +2,10 @@
 
 void enable_raw_mode() {
     if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1)
-        kill("tcgetattr");
+        kill("tcgetattr error in enable_raw_mode() function");
     atexit(disable_raw_mode);
-    struct termios raw = E.orig_termios;
 
+    struct termios raw = E.orig_termios;
     // ECHO to disable echoing the input
     // ICANON to read input byte by byte
     // IEXTEN to disable Ctrl+V (multiple input)
@@ -21,18 +21,17 @@ void enable_raw_mode() {
     raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
     raw.c_oflag &= ~(OPOST);
     raw.c_cflag |= (CS8);
-
     raw.c_cc[VMIN] = 0;
     raw.c_cc[VTIME] = 1;
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
-        kill("tcsetattr");
+        kill("tcsetattr error in enable_raw_mode() function");
     }
 }
 
 void disable_raw_mode() {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1)
-        kill("tcsetattr");
+        kill("tcsetattr error in disable_raw_mode() function");
 }
 
 void kill(const char* error_message) {
@@ -111,7 +110,7 @@ void editor_init() {
     E.row = NULL;
 
    if (get_window_size(&E.screenrows, &E.screencols) == -1)
-        kill("Unable to get window size");
+        kill("Unable to get window size in editor_init() function");
 }
 
 int get_cursor_position(int* rows, int* cols) {
@@ -181,7 +180,7 @@ void editor_move_cursor(int key) {
 
 void editor_open(char* filename) {
     FILE* file = fopen(filename, "r");
-    if (!file) kill("Unable to open file");
+    if (!file) kill("Unable to open file in editor_open(char*) function");
 
     char* line = NULL;
     size_t linecap = 0;

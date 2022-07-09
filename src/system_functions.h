@@ -12,9 +12,11 @@
 #include "ctype.h"
 #include "errno.h"
 #include "string.h"
-#include "input_output.h"
+#include "stdbool.h"
 #include "sys/ioctl.h"
 #include "sys/types.h"
+
+#include "input_output.h"
 
 // mapping a key to corresponding Ctrl+key command
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -66,7 +68,6 @@ int get_cursor_position(int* rows, int* cols);
 
 void ab_append(struct append_buffer* ab, const char* s, int len);
 void ab_free(struct append_buffer* ab);
-
 
 void editor_init();
 void editor_execute_keypress();
