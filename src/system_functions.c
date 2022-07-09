@@ -108,9 +108,13 @@ void editor_init() {
     E.rowoff = 0;
     E.coloff = 0;
     E.row = NULL;
+    E.filename = NULL;
+    E.status_message_time = 0;
+    E.status_message[0] = '\0';
 
    if (get_window_size(&E.screenrows, &E.screencols) == -1)
         kill("Unable to get window size in editor_init() function");
+   E.screenrows -= 2; // for status bar
 }
 
 int get_cursor_position(int* rows, int* cols) {
@@ -179,6 +183,9 @@ void editor_move_cursor(int key) {
 }
 
 void editor_open(char* filename) {
+    free(E.filename);
+    E.filename = strdup(filename);
+
     FILE* file = fopen(filename, "r");
     if (!file) kill("Unable to open file in editor_open(char*) function");
 
@@ -255,4 +262,14 @@ int editor_row_cx_to_rx(erow* row, int cx) {
         rx++;
     }
     return rx;
+}
+
+
+void editor_set_status_bar_message(const char* format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    vsnprintf(E.status_message, sizeof(E.status_message), format, ap);
+    va_end(ap);
+
+    E.status_message_time = time(NULL);
 }

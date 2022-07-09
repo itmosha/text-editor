@@ -7,5 +7,7 @@
 int editor_read_key();
 void editor_refresh_screen();
 void editor_draw_rows(struct append_buffer* ab);
+void editor_draw_status_bar(struct append_buffer *ab);
+void editor_draw_message_bar(struct append_buffer *ab);
 
 #endif //TEXT_EDITOR_INPUT_OUTPUT_H

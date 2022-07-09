@@ -13,6 +13,8 @@
 #include "errno.h"
 #include "string.h"
 #include "stdbool.h"
+#include "time.h"
+#include "stdarg.h"
 #include "sys/ioctl.h"
 #include "sys/types.h"
 
@@ -39,6 +41,9 @@ struct editor_config {
     int num_rows;
     int rowoff;
     int coloff;
+    char* filename;
+    char status_message[80];
+    time_t status_message_time;
     erow *row;
     struct termios orig_termios;
 };
@@ -63,21 +68,24 @@ enum editor_key {
 
 void enable_raw_mode();
 void disable_raw_mode();
+
 int get_window_size(int* rows, int* cols);
 int get_cursor_position(int* rows, int* cols);
 
 void ab_append(struct append_buffer* ab, const char* s, int len);
 void ab_free(struct append_buffer* ab);
+void editor_append_row(char* s, size_t len);
+void editor_update_row(erow* row);
 
 void editor_init();
+void editor_open(char* filename);
+
 void editor_execute_keypress();
 void editor_move_cursor(int key);
-void editor_open(char* filename);
-void editor_append_row(char* s, size_t len);
 void editor_scroll();
-void editor_update_row(erow* row);
-int editor_row_cx_to_rx(erow* row, int cx);
 
+void editor_set_status_bar_message(const char* format, ...);
+int editor_row_cx_to_rx(erow* row, int cx);
 void kill(const char* error_message);
 
 #endif //TEXT_EDITOR_SYSTEM_FUNCTIONS_H
