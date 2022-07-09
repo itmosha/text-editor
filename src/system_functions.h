@@ -19,14 +19,19 @@
 // mapping a key to corresponding Ctrl+key command
 #define CTRL_KEY(k) ((k) & 0x1f)
 #define APPEND_BUFFER_INIT {NULL, 0}
+#define EDITOR_VERSION "0.0.1"
+#define TAB_STOP 8
 
 typedef struct erow {
     int size;
+    int rsize;
     char* chars;
+    char* render;
 } erow;
 
 struct editor_config {
     int cx, cy;
+    int rx;
     int screenrows;
     int screencols;
     int num_rows;
@@ -69,6 +74,8 @@ void editor_move_cursor(int key);
 void editor_open(char* filename);
 void editor_append_row(char* s, size_t len);
 void editor_scroll();
+void editor_update_row(erow* row);
+int editor_row_cx_to_rx(erow* row, int cx);
 
 void kill(const char* error_message);
 

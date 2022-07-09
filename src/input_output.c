@@ -64,7 +64,7 @@ void editor_refresh_screen() {
     editor_draw_rows(&ab);
 
     char buf[32];
-    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1, (E.cx - E.coloff) + 1);
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1, (E.rx - E.coloff) + 1);
     ab_append(&ab, buf, strlen(buf));
 
     ab_append(&ab, "\x1b[?25h", 6);
@@ -92,10 +92,10 @@ void editor_draw_rows(struct append_buffer* ab) {
                 ab_append(ab, "~", 1);
             }
         } else {
-            int len = E.row[filerow].size - E.coloff;
+            int len = E.row[filerow].rsize - E.coloff;
             if (len < 0) len = 0;
             if (len > E.screencols) len = E.screencols;
-            ab_append(ab, &E.row[filerow].chars[E.coloff], len);
+            ab_append(ab, &E.row[filerow].render[E.coloff], len);
         }
 
         ab_append(ab, "\x1b[K", 3);

@@ -97,6 +97,7 @@ int get_window_size(int* rows, int* cols) {
 void editor_init() {
     E.cx = 0;
     E.cy = 0;
+    E.rx = 0;
     E.num_rows = 0;
     E.rowoff = 0;
     E.coloff = 0;
@@ -138,12 +139,22 @@ void ab_free(struct append_buffer* ab) {
 }
 
 void editor_move_cursor(int key) {
+    erow* row = (E.cy >= E.num_rows) ? NULL : &E.row[E.cy];
+
     switch (key) {
         case ARROW_LEFT:
             if (E.cx != 0) E.cx--;
+            else if (E.cy > 0) {
+                E.cy--;
+                E.cx = E.row[E.cy].size;
+            }
             break;
         case ARROW_RIGHT:
-            E.cx++;
+            if (row && E.cx < row->size) E.cx++;
+            else if (row && E.cx == row->size) {
+                E.cy++;
+                E.cx = 0;
+            }
             break;
         case ARROW_UP:
             if (E.cy != 0) E.cy--;
@@ -154,6 +165,11 @@ void editor_move_cursor(int key) {
         default:
             break;
     }
+
+    row = (E.cy >= E.num_rows) ? NULL : &E.row[E.cy];
+    int rowlen = row ? row->size : 0;
+    if (E.cx > rowlen)
+        E.cx = rowlen;
 }
 
 void editor_open(char* filename) {
@@ -182,12 +198,55 @@ void editor_append_row(char* s, size_t len) {
     E.row[at].chars = malloc(len + 1);
     memcpy(E.row[at].chars, s, len);
     E.row[at].chars[len] = '\0';
+
+    E.row[at].rsize = 0;
+    E.row[at].render = NULL;
+    editor_update_row(&E.row[at]);
     E.num_rows += 1;
 }
 
 void editor_scroll() {
-    if (E.cy < E.rowoff) E.rowoff = E.cy;
-    if (E.cy >= E.rowoff + E.screenrows) E.rowoff = E.cy - E.screenrows + 1;
-    if (E.cx < E.coloff) E.coloff = E.cx;
-    if (E.cx >= E.coloff + E.screencols) E.coloff = E.cx - E.screencols + 1;
+    E.rx = 0;
+    if (E.cy < E.num_rows)
+        E.rx = editor_row_cx_to_rx(&E.row[E.cy], E.cx);
+
+    if (E.cy < E.rowoff)
+        E.rowoff = E.cy;
+    if (E.cy >= E.rowoff + E.screenrows)
+        E.rowoff = E.cy - E.screenrows + 1;
+    if (E.rx < E.coloff)
+        E.coloff = E.rx;
+    if (E.rx >= E.coloff + E.screencols)
+        E.coloff = E.rx - E.screencols + 1;
+}
+
+void editor_update_row(erow* row) {
+    int tabs = 0;
+    for (int i = 0; i < row->size; ++i)
+        if (row->chars[i] == '\t') tabs++;
+
+    free(row->render);
+    row->render = malloc(row->size + tabs * (TAB_STOP - 1) + 1);
+
+    int index = 0;
+    for (int i = 0; i < row->size; ++i) {
+        if (row->chars[i] == '\t') {
+            row->render[index++] = ' ';
+            while (index % TAB_STOP != 0) row->render[index++] = ' ';
+        } else {
+            row->render[index++] = row->chars[i];
+        }
+    }
+    row->render[index] = '\0';
+    row->rsize = index;
+}
+
+int editor_row_cx_to_rx(erow* row, int cx) {
+    int rx = 0;
+    for (int i = 0; i < cx; ++i) {
+        if (row->chars[i] == '\t')
+            rx += (TAB_STOP - 1) - (rx % TAB_STOP);
+        rx++;
+    }
+    return rx;
 }

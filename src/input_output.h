@@ -3,7 +3,6 @@
 
 #include "system_functions.h"
 
-#define EDITOR_VERSION "0.0.1"
 
 int editor_read_key();
 void editor_refresh_screen();
