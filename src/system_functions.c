@@ -327,7 +327,14 @@ char* editor_rows_to_string(int* buflen) {
 }
 
 void editor_save() {
-    if (E.filename == NULL) return;
+    if (E.filename == NULL) {
+        E.filename = editor_prompt("Save file as (ESC to cancel): %s");
+
+        if (E.filename == NULL) {
+            editor_set_status_bar_message("Save cancelled");
+            return;
+        }
+    }
 
     int len;
     char* buf = editor_rows_to_string(&len);
