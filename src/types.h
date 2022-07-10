@@ -28,11 +28,26 @@ struct editor_config {
     int num_rows;
     int rowoff;
     int coloff;
+    int unsaved;
     char* filename;
     char status_message[80];
     time_t status_message_time;
     erow *row;
     struct termios orig_termios;
+};
+
+
+enum editor_key {
+    BACKSPACE = 127,
+    ARROW_LEFT = 1000,
+    ARROW_UP = 1001,
+    ARROW_DOWN = 1002,
+    ARROW_RIGHT = 1003,
+    PAGE_UP = 1004,
+    PAGE_DOWN = 1005,
+    HOME_KEY = 1006,
+    END_KEY = 1007,
+    DEL_KEY = 1008
 };
 
 #endif //TEXT_EDITOR_TYPES_H

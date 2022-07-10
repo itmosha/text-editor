@@ -10,6 +10,7 @@
 #include "string.h"
 #include "stdbool.h"
 #include "stdarg.h"
+#include "fcntl.h"
 #include "sys/ioctl.h"
 
 #include "types.h"
@@ -20,22 +21,9 @@
 #define APPEND_BUFFER_INIT {NULL, 0}
 #define EDITOR_VERSION "0.0.1"
 #define TAB_STOP 4
+#define QUIT_TIMES 2
 
 struct editor_config E;
-
-
-enum editor_key {
-    BACKSPACE = 127,
-    ARROW_LEFT = 1000,
-    ARROW_UP = 1001,
-    ARROW_DOWN = 1002,
-    ARROW_RIGHT = 1003,
-    PAGE_UP = 1004,
-    PAGE_DOWN = 1005,
-    HOME_KEY = 1006,
-    END_KEY = 1007,
-    DEL_KEY = 1008
-};
 
 void enable_raw_mode();
 void disable_raw_mode();
@@ -57,6 +45,9 @@ void editor_scroll();
 
 void editor_set_status_bar_message(const char* format, ...);
 int editor_row_cx_to_rx(erow* row, int cx);
+char* editor_rows_to_string(int* buflen);
+
+void editor_save();
 void kill(const char* error_message);
 
 #endif //TEXT_EDITOR_SYSTEM_FUNCTIONS_H

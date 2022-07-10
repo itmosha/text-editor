@@ -43,6 +43,7 @@ void kill(const char* error_message) {
 }
 
 void editor_execute_keypress() {
+    static int quit_times = QUIT_TIMES;
     int c = editor_read_key();
 
     switch (c) {
@@ -51,10 +52,20 @@ void editor_execute_keypress() {
             break;
 
         case CTRL_KEY('q'):
+            if (E.unsaved && quit_times > 0) {
+                editor_set_status_bar_message("WARNING! File nas unsaved changes. "
+                                              "Press Ctrl+q %d more times to quit", quit_times);
+                quit_times--;
+                return;
+            }
             write(STDOUT_FILENO, "\x1b[2J", 4);
             write(STDOUT_FILENO, "\x1b[H", 3);
-
             exit(0);
+
+
+        case CTRL_KEY('s'):
+            editor_save();
+            break;
 
         case HOME_KEY:
             E.cx = 0;
@@ -99,6 +110,7 @@ void editor_execute_keypress() {
             editor_insert_char(c);
             break;
     }
+    quit_times = QUIT_TIMES;
 }
 
 int get_window_size(int* rows, int* cols) {
@@ -127,6 +139,7 @@ void editor_init() {
     E.filename = NULL;
     E.status_message_time = 0;
     E.status_message[0] = '\0';
+    E.unsaved = 0;
 
    if (get_window_size(&E.screenrows, &E.screencols) == -1)
         kill("Unable to get window size in editor_init() function");
@@ -217,6 +230,7 @@ void editor_open(char* filename) {
 
     free(line);
     fclose(file);
+    E.unsaved = 0;
 }
 
 void editor_append_row(char* s, size_t len) {
@@ -231,7 +245,9 @@ void editor_append_row(char* s, size_t len) {
     E.row[at].rsize = 0;
     E.row[at].render = NULL;
     editor_update_row(&E.row[at]);
-    E.num_rows += 1;
+
+    E.num_rows++;
+    E.unsaved++;
 }
 
 void editor_scroll() {
@@ -288,4 +304,45 @@ void editor_set_status_bar_message(const char* format, ...) {
     va_end(ap);
 
     E.status_message_time = time(NULL);
+}
+
+char* editor_rows_to_string(int* buflen) {
+    int total_len = 0;
+    for (int i = 0; i < E.num_rows; i++)
+        total_len += E.row[i].size + 1;
+    *buflen = total_len;
+
+    char* buf = malloc(total_len);
+    char* p = buf;
+    for (int i = 0; i < E.num_rows; i++) {
+        memcpy(p, E.row[i].chars, E.row[i].size);
+        p += E.row[i].size;
+        *p = '\n';
+        p++;
+    }
+
+    return buf;
+}
+
+void editor_save() {
+    if (E.filename == NULL) return;
+
+    int len;
+    char* buf = editor_rows_to_string(&len);
+
+    int file = open(E.filename, O_RDWR | O_CREAT, 0644);
+    if (file != -1) {
+        if (ftruncate(file, len) != -1) {
+            if (write(file, buf, len) == len) {
+                close(file);
+                free(buf);
+                E.unsaved = 0;
+                editor_set_status_bar_message("%d bytes written to disk", len);
+                return;
+            }
+        }
+        close(file);
+    }
+    free(buf);
+    editor_set_status_bar_message("Cannot save! I/O error: %s", strerror(errno));
 }

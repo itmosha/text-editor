@@ -119,7 +119,7 @@ void editor_draw_status_bar(append_buffer *ab) {
     ab_append(ab, "\x1b[7m", 4);
     char status[80], rstatus[80];
 
-    int len = snprintf(status, sizeof(status), "%.20s - %d lines", E.filename ? E.filename : "[NO NAME]", E.num_rows);
+    int len = snprintf(status, sizeof(status), "%.20s - %d lines %s", E.filename ? E.filename : "[NO NAME]", E.num_rows, E.unsaved ? "(modified)" : "");
     int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", E.cy + 1, E.num_rows);
 
     if (len > E.screencols)
@@ -147,6 +147,8 @@ void editor_row_insert_char(erow* row, int at, int c) {
     row->size++;
     row->chars[at] = c;
     editor_update_row(row);
+
+    E.unsaved++;
 }
 
 void editor_insert_char(char c) {
