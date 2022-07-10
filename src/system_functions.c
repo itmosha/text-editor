@@ -46,6 +46,10 @@ void editor_execute_keypress() {
     int c = editor_read_key();
 
     switch (c) {
+        case '\r':
+            // IMPLEMENTATION HERE
+            break;
+
         case CTRL_KEY('q'):
             write(STDOUT_FILENO, "\x1b[2J", 4);
             write(STDOUT_FILENO, "\x1b[H", 3);
@@ -59,6 +63,12 @@ void editor_execute_keypress() {
         case END_KEY:
             if (E.cy < E.num_rows)
                 E.cx = E.row[E.cy].size;
+            break;
+
+        case BACKSPACE:
+        case CTRL_KEY('h'):
+        case DEL_KEY:
+            // IMPLEMENTATION HERE
             break;
 
         case PAGE_UP:
@@ -80,7 +90,13 @@ void editor_execute_keypress() {
         case ARROW_RIGHT:
             editor_move_cursor(c);
             break;
+
+        case CTRL_KEY('l'):
+        case '\x1b':
+            break;
+
         default:
+            editor_insert_char(c);
             break;
     }
 }
@@ -135,7 +151,7 @@ int get_cursor_position(int* rows, int* cols) {
     return 0;
 }
 
-void ab_append(struct append_buffer* ab, const char* s, int len) {
+void ab_append(append_buffer* ab, const char* s, int len) {
     char* new = realloc(ab->b, ab->len + len);
 
     if (new == NULL) return;

@@ -1,7 +1,7 @@
 #include "input_output.h"
 
 int editor_read_key() {
-    int read_;
+    ssize_t read_;
     char c;
 
     while ((read_ = read(STDIN_FILENO, &c, 1)) != 1) {
@@ -74,7 +74,7 @@ void editor_refresh_screen() {
     ab_free(&ab);
 }
 
-void editor_draw_rows(struct append_buffer* ab) {
+void editor_draw_rows(append_buffer* ab) {
     for (int y = 0; y < E.screenrows; y++) {
         int filerow = y + E.rowoff;
         if (filerow >= E.num_rows) {
@@ -105,7 +105,7 @@ void editor_draw_rows(struct append_buffer* ab) {
     }
 }
 
-void editor_draw_message_bar(struct append_buffer *ab) {
+void editor_draw_message_bar(append_buffer *ab) {
     ab_append(ab, "\x1b[K", 3);
     int message_len = strlen(E.status_message);
 
@@ -115,7 +115,7 @@ void editor_draw_message_bar(struct append_buffer *ab) {
         ab_append(ab, E.status_message, message_len);
 }
 
-void editor_draw_status_bar(struct append_buffer *ab) {
+void editor_draw_status_bar(append_buffer *ab) {
     ab_append(ab, "\x1b[7m", 4);
     char status[80], rstatus[80];
 
@@ -137,4 +137,21 @@ void editor_draw_status_bar(struct append_buffer *ab) {
     }
     ab_append(ab, "\x1b[m", 3);
     ab_append(ab, "\r\n", 2);
+}
+
+void editor_row_insert_char(erow* row, int at, int c) {
+    if (at < 0 || at > row->size) at = row->size;
+
+    row->chars = realloc(row->chars, row->size + 2);
+    memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
+    row->size++;
+    row->chars[at] = c;
+    editor_update_row(row);
+}
+
+void editor_insert_char(char c) {
+    if (E.cy == E.num_rows)
+        editor_append_row("", 0);
+    editor_row_insert_char(&E.row[E.cy], E.cx, c);
+    E.cx++;
 }

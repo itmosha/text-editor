@@ -5,56 +5,27 @@
 #define _BSD_SOURCE
 #define _GNU_SOURCE
 
-#include "stdlib.h"
-#include "stdio.h"
-#include "termios.h"
 #include "unistd.h"
-#include "ctype.h"
 #include "errno.h"
 #include "string.h"
 #include "stdbool.h"
-#include "time.h"
 #include "stdarg.h"
 #include "sys/ioctl.h"
-#include "sys/types.h"
 
+#include "types.h"
 #include "input_output.h"
 
 // mapping a key to corresponding Ctrl+key command
 #define CTRL_KEY(k) ((k) & 0x1f)
 #define APPEND_BUFFER_INIT {NULL, 0}
 #define EDITOR_VERSION "0.0.1"
-#define TAB_STOP 8
+#define TAB_STOP 4
 
-typedef struct erow {
-    int size;
-    int rsize;
-    char* chars;
-    char* render;
-} erow;
-
-struct editor_config {
-    int cx, cy;
-    int rx;
-    int screenrows;
-    int screencols;
-    int num_rows;
-    int rowoff;
-    int coloff;
-    char* filename;
-    char status_message[80];
-    time_t status_message_time;
-    erow *row;
-    struct termios orig_termios;
-};
 struct editor_config E;
 
-struct append_buffer {
-    char* b;
-    size_t len;
-};
 
 enum editor_key {
+    BACKSPACE = 127,
     ARROW_LEFT = 1000,
     ARROW_UP = 1001,
     ARROW_DOWN = 1002,
@@ -72,8 +43,8 @@ void disable_raw_mode();
 int get_window_size(int* rows, int* cols);
 int get_cursor_position(int* rows, int* cols);
 
-void ab_append(struct append_buffer* ab, const char* s, int len);
-void ab_free(struct append_buffer* ab);
+void ab_append(append_buffer* ab, const char* s, int len);
+void ab_free(append_buffer* ab);
 void editor_append_row(char* s, size_t len);
 void editor_update_row(erow* row);
 
