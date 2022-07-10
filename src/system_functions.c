@@ -79,7 +79,8 @@ void editor_execute_keypress() {
         case BACKSPACE:
         case CTRL_KEY('h'):
         case DEL_KEY:
-            // IMPLEMENTATION HERE
+            if (c == DEL_KEY) editor_move_cursor(ARROW_RIGHT);
+            editor_delete_char();
             break;
 
         case PAGE_UP:
@@ -345,4 +346,53 @@ void editor_save() {
     }
     free(buf);
     editor_set_status_bar_message("Cannot save! I/O error: %s", strerror(errno));
+}
+
+void editor_row_delete_char(erow* row, int at) {
+    if (at < 0 || at > row->size) return;
+
+    memmove(&row->chars[at], &row->chars[at + 1], row->size - at);
+    row->size--;
+    editor_update_row(row);
+    E.unsaved++;
+}
+
+void editor_delete_char() {
+    if (E.cy == E.num_rows) return;
+    if (E.cx == 0 && E.cy == 0) return;
+
+    erow* row = &E.row[E.cy];
+    if (E.cx > 0) {
+        editor_row_delete_char(row, E.cx - 1);
+        E.cx--;
+    } else {
+        E.cx = E.row[E.cy - 1].size;
+        editor_row_append_string(&E.row[E.cy - 1], row->chars, row->size);
+        editor_delete_row(E.cy);
+        E.cy--;
+    }
+}
+
+void editor_free_row(erow* row) {
+    free(row->render);
+    free(row->chars);
+}
+
+void editor_delete_row(int at) {
+    if (at < 0 || at >= E.num_rows) return;
+
+    editor_free_row(&E.row[at]);
+    memmove(&E.row[at], &E.row[at + 1], sizeof(erow) * (E.num_rows - at - 1));
+    E.num_rows--;
+    E.unsaved++;
+}
+
+void editor_row_append_string(erow* row, char* s, size_t len) {
+    row->chars = realloc(row->chars, row->size + len + 1);
+    memcpy(&row->chars[row->size], s, len);
+
+    row->size += len;
+    row->chars[row->size] = '\0';
+    editor_update_row(row);
+    E.unsaved++;
 }

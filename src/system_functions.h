@@ -35,10 +35,15 @@ void ab_append(append_buffer* ab, const char* s, int len);
 void ab_free(append_buffer* ab);
 void editor_append_row(char* s, size_t len);
 void editor_update_row(erow* row);
+void editor_free_row(erow* row);
+void editor_delete_row(int at);
+void editor_row_append_string(erow* row, char* s, size_t len);
 
 void editor_init();
 void editor_open(char* filename);
 
+void editor_row_delete_char(erow* row, int at);
+void editor_delete_char();
 void editor_execute_keypress();
 void editor_move_cursor(int key);
 void editor_scroll();
