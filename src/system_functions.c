@@ -48,7 +48,7 @@ void editor_execute_keypress() {
 
     switch (c) {
         case '\r':
-            // IMPLEMENTATION HERE
+            editor_insert_new_line();
             break;
 
         case CTRL_KEY('q'):
@@ -226,7 +226,7 @@ void editor_open(char* filename) {
     while ((linelen = getline(&line, &linecap, file)) != -1) {
         while (linelen > 0 && (line[linelen - 1] == '\n' || line[linelen - 1] == '\r'))
             linelen--;
-        editor_append_row(line, linelen);
+        editor_insert_row(E.num_rows, line, linelen);
     }
 
     free(line);
@@ -234,10 +234,11 @@ void editor_open(char* filename) {
     E.unsaved = 0;
 }
 
-void editor_append_row(char* s, size_t len) {
+void editor_insert_row(int at, char* s, size_t len) {
+    if (at < 0 || at > E.num_rows) return;
     E.row = realloc(E.row, sizeof(erow) * (E.num_rows + 1));
+    memmove(&E.row[at + 1], &E.row[at], sizeof(erow) * (E.num_rows - at));
 
-    int at = E.num_rows;
     E.row[at].size = len;
     E.row[at].chars = malloc(len + 1);
     memcpy(E.row[at].chars, s, len);
@@ -395,4 +396,19 @@ void editor_row_append_string(erow* row, char* s, size_t len) {
     row->chars[row->size] = '\0';
     editor_update_row(row);
     E.unsaved++;
+}
+
+void editor_insert_new_line() {
+    if (E.cx == 0) {
+        editor_insert_row(E.cy, "", 0);
+    } else {
+        erow* row = &E.row[E.cy];
+        editor_insert_row(E.cy + 1, &row->chars[E.cx], row->size - E.cx);
+        row = &E.row[E.cy];
+        row->size = E.cx;
+        row->chars[row->size] = '\0';
+        editor_update_row(row);
+    }
+    E.cy++;
+    E.cx = 0;
 }

@@ -153,7 +153,8 @@ void editor_row_insert_char(erow* row, int at, int c) {
 
 void editor_insert_char(char c) {
     if (E.cy == E.num_rows)
-        editor_append_row("", 0);
+        editor_insert_row(E.num_rows, "", 0);
+
     editor_row_insert_char(&E.row[E.cy], E.cx, c);
     E.cx++;
 }

@@ -33,11 +33,12 @@ int get_cursor_position(int* rows, int* cols);
 
 void ab_append(append_buffer* ab, const char* s, int len);
 void ab_free(append_buffer* ab);
-void editor_append_row(char* s, size_t len);
+void editor_insert_row(int at, char* s, size_t len);
 void editor_update_row(erow* row);
 void editor_free_row(erow* row);
 void editor_delete_row(int at);
 void editor_row_append_string(erow* row, char* s, size_t len);
+void editor_insert_new_line();
 
 void editor_init();
 void editor_open(char* filename);
