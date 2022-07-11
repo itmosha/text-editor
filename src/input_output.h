@@ -13,6 +13,6 @@ int editor_read_key();
 void editor_row_insert_char(erow* row, int at, int c);
 void editor_insert_char(char c);
 
-char* editor_prompt(char* prompt);
+char* editor_prompt(char* prompt, void (*callback)(char*, int));
 
 #endif //TEXT_EDITOR_INPUT_OUTPUT_H

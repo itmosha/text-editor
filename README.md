@@ -4,15 +4,16 @@ Use this command to build:
 
 > ./text_editor.sh
 
-You need to specify the name of the file you want to open:
+You can specify the name of the file you want to open:
 
 > ./text_editor my_file.txt
 
 ## Interacting with your text files
 
 Main operations on files:
-- Use __Ctrl+s__ to save your file
-- __Ctrl+q__ to exit the editor
+- __Ctrl+s__ to save your file
+- __Ctrl+q__ to exit the editor'
+- __Ctrl+f__ to search for a certain word in the file
 
 Useful buttons for file navigation:
  - Use buttons __h__, __j__, __k__ and __l__ to move your cursor left, up, down and right

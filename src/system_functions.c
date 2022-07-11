@@ -76,6 +76,10 @@ void editor_execute_keypress() {
                 E.cx = E.row[E.cy].size;
             break;
 
+        case CTRL_KEY('f'):
+            editor_find();
+            break;
+
         case BACKSPACE:
         case CTRL_KEY('h'):
         case DEL_KEY:
@@ -328,7 +332,7 @@ char* editor_rows_to_string(int* buflen) {
 
 void editor_save() {
     if (E.filename == NULL) {
-        E.filename = editor_prompt("Save file as (ESC to cancel): %s");
+        E.filename = editor_prompt("Save file as (ESC to cancel): %s", NULL);
 
         if (E.filename == NULL) {
             editor_set_status_bar_message("Save cancelled");
@@ -418,4 +422,69 @@ void editor_insert_new_line() {
     }
     E.cy++;
     E.cx = 0;
+}
+
+void editor_find() {
+    int save_cx = E.cx, save_cy = E.cy;
+    int save_coloff = E.coloff, save_rowoff = E.rowoff;
+
+    char* query = editor_prompt("Search (ESC to cancel): %s", editor_find_callback);
+    if (query) {
+        free(query);
+    } else {
+        E.cx = save_cx;
+        E.cy = save_cy;
+        E.coloff = save_coloff;
+        E.rowoff = save_rowoff;
+    }
+}
+
+void editor_find_callback(char* query, int key) {
+    static int last_match = -1;
+    static int direction = 1;
+
+    if (key == '\r' || key == '\x1b') {
+        last_match = -1;
+        direction = 1;
+        return;
+    } else if (key == ARROW_RIGHT || key == ARROW_DOWN) {
+        direction = 1;
+    } else if (key == ARROW_LEFT || key == ARROW_UP) {
+        direction = -1;
+    } else {
+        last_match = -1;
+        direction = 1;
+    }
+
+    if (last_match == -1) direction = 1;
+    int current = last_match;
+
+    for (int i = 0; i < E.num_rows; i++) {
+        current += direction;
+        if (current == -1) current = E.num_rows - 1;
+        else if (current == E.num_rows) current = 0;
+
+        erow* row = &E.row[current];
+        char* match = strstr(row->render, query);
+        if (match) {
+            last_match = current;
+            E.cy = current;
+            E.cx = editor_row_rx_to_cx(row, match - row->render);
+            E.rowoff = E.num_rows;
+            break;
+        }
+    }
+}
+
+int editor_row_rx_to_cx(erow* row, int rx) {
+    int cur_rx = 0;
+    int cx;
+    for (cx = 0; cx < row->size; cx++) {
+        if (row->chars[cx] == '\t')
+            cur_rx += (TAB_STOP - 1) - (cur_rx % TAB_STOP);
+        cur_rx++;
+
+        if (cur_rx > rx) return cx;
+    }
+    return cx;
 }

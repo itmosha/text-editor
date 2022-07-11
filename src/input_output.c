@@ -159,7 +159,7 @@ void editor_insert_char(char c) {
     E.cx++;
 }
 
-char* editor_prompt(char* prompt) {
+char* editor_prompt(char* prompt, void (*callback)(char*, int)) {
     size_t bufsize = 128;
     char* buf = malloc(bufsize);
 
@@ -175,11 +175,13 @@ char* editor_prompt(char* prompt) {
             if (buflen != 0) buf[--buflen] = '\0';
         } else if (c == '\x1b') {
             editor_set_status_bar_message("");
+            if (callback) callback(buf, c);
             free(buf);
             return NULL;
         } else if (c == '\r') {
             if (buflen != 0) {
                 editor_set_status_bar_message("");
+                if (callback) callback(buf, c);
                 return buf;
             }
         } else if (!iscntrl(c) && c < 128) {
@@ -190,5 +192,6 @@ char* editor_prompt(char* prompt) {
             buf[buflen++] = c;
             buf[buflen] = '\0';
         }
+        if (callback) callback(buf, c);
     }
 }

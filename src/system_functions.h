@@ -51,7 +51,11 @@ void editor_scroll();
 
 void editor_set_status_bar_message(const char* format, ...);
 int editor_row_cx_to_rx(erow* row, int cx);
+int editor_row_rx_to_cx(erow* row, int rx);
 char* editor_rows_to_string(int* buflen);
+
+void editor_find();
+void editor_find_callback(char* query, int key);
 
 void editor_save();
 void kill(const char* error_message);
