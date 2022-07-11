@@ -5,6 +5,14 @@
 #define _BSD_SOURCE
 #define _GNU_SOURCE
 
+// mapping a key to corresponding Ctrl+key command
+#define CTRL_KEY(k) ((k) & 0x1f)
+#define APPEND_BUFFER_INIT {NULL, 0}
+#define EDITOR_VERSION "0.0.1"
+#define TAB_STOP 4
+#define QUIT_TIMES 2
+#define HIGHLIGHT_NUMBERS (1 << 0)
+
 #include "time.h"
 #include "stdlib.h"
 #include "stdio.h"
@@ -32,6 +40,12 @@ typedef struct append_buffer {
     size_t len;
 } append_buffer;
 
+struct editor_syntax {
+    char* filetype;
+    char** filematch;
+    int flags;
+};
+
 struct editor_config {
     int cx, cy;
     int rx;
@@ -45,6 +59,7 @@ struct editor_config {
     char status_message[80];
     time_t status_message_time;
     erow *row;
+    struct editor_syntax* syntax;
     struct termios orig_termios;
 };
 
@@ -63,6 +78,7 @@ enum editor_key {
 
 enum editor_highlight {
     HL_NORMAL = 0,
-    HL_NUMBER
+    HL_NUMBER,
+    HL_MATCH
 };
 #endif //TEXT_EDITOR_TYPES_H

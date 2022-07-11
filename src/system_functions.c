@@ -145,6 +145,7 @@ void editor_init() {
     E.status_message_time = 0;
     E.status_message[0] = '\0';
     E.unsaved = 0;
+    E.syntax = NULL;
 
    if (get_window_size(&E.screenrows, &E.screencols) == -1)
         kill("Unable to get window size in editor_init() function");
@@ -219,6 +220,8 @@ void editor_move_cursor(int key) {
 void editor_open(char* filename) {
     free(E.filename);
     E.filename = strdup(filename);
+
+    editor_select_syntax_highlight();
 
     FILE* file = fopen(filename, "r");
     if (!file) kill("Unable to open file in editor_open(char*) function");
@@ -341,6 +344,7 @@ void editor_save() {
             editor_set_status_bar_message("Save cancelled");
             return;
         }
+        editor_select_syntax_highlight();
     }
 
     int len;
@@ -447,6 +451,15 @@ void editor_find_callback(char* query, int key) {
     static int last_match = -1;
     static int direction = 1;
 
+    static int save_highlight_line;
+    static char* save_highlight = NULL;
+
+    if (save_highlight) {
+        memcpy(E.row[save_highlight_line].highlight, save_highlight, E.row[save_highlight_line].rsize);
+        free(save_highlight);
+        save_highlight = NULL;
+    }
+
     if (key == '\r' || key == '\x1b') {
         last_match = -1;
         direction = 1;
@@ -475,6 +488,11 @@ void editor_find_callback(char* query, int key) {
             E.cy = current;
             E.cx = editor_row_rx_to_cx(row, match - row->render);
             E.rowoff = E.num_rows;
+
+            save_highlight_line = current;
+            save_highlight = malloc(row->size);
+            memcpy(save_highlight, row->highlight, row->rsize);
+            memset(&row->highlight[match - row->render], HL_MATCH, strlen(query));
             break;
         }
     }

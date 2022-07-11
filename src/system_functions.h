@@ -5,13 +5,6 @@
 #include "input_output.h"
 #include "highlighting.h"
 
-// mapping a key to corresponding Ctrl+key command
-#define CTRL_KEY(k) ((k) & 0x1f)
-#define APPEND_BUFFER_INIT {NULL, 0}
-#define EDITOR_VERSION "0.0.1"
-#define TAB_STOP 4
-#define QUIT_TIMES 2
-
 struct editor_config E;
 
 void enable_raw_mode();
