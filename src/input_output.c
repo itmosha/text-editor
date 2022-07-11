@@ -102,7 +102,18 @@ void editor_draw_rows(append_buffer* ab) {
             int current_color = -1;
 
             for (int j = 0; j < len; j++) {
-                if (highlight[j] == HL_NORMAL) {
+                if (iscntrl(c[j])) {
+                    char symbol = (c[j] <= 26) ? '@' + c[j] : '?';
+                    ab_append(ab, "\x1b[7m", 4);
+                    ab_append(ab, &symbol, 1);
+                    ab_append(ab, "\x1b[m", 3);
+
+                    if (current_color != -1) {
+                        char buf[16];
+                        int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", current_color);
+                        ab_append(ab, buf, clen);
+                    }
+                } else if (highlight[j] == HL_NORMAL) {
                     if (current_color != -1) {
                         ab_append(ab, "\x1b[39m", 5);
                         current_color = -1;

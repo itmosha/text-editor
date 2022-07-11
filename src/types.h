@@ -12,6 +12,7 @@
 #define TAB_STOP 4
 #define QUIT_TIMES 2
 #define HIGHLIGHT_NUMBERS (1 << 0)
+#define HIGHLIGHT_STRINGS (1 << 1)
 
 #include "time.h"
 #include "stdlib.h"
@@ -28,11 +29,13 @@
 #include "sys/ioctl.h"
 
 typedef struct erow {
+    int index;
     int size;
     int rsize;
     char* chars;
     char* render;
     unsigned char* highlight;
+    int highlight_open_comment;
 } erow;
 
 typedef struct append_buffer {
@@ -43,6 +46,10 @@ typedef struct append_buffer {
 struct editor_syntax {
     char* filetype;
     char** filematch;
+    char** keywords;
+    char* singleline_comment_start;
+    char* multiline_comment_start;
+    char* multiline_comment_end;
     int flags;
 };
 
@@ -78,6 +85,11 @@ enum editor_key {
 
 enum editor_highlight {
     HL_NORMAL = 0,
+    HL_COMMENT,
+    HL_MLCOMMENT,
+    HL_KEYWORD1,
+    HL_KEYWORD2,
+    HL_STRING,
     HL_NUMBER,
     HL_MATCH
 };
