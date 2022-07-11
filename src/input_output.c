@@ -97,9 +97,30 @@ void editor_draw_rows(append_buffer* ab) {
             int len = E.row[filerow].rsize - E.coloff;
             if (len < 0) len = 0;
             if (len > E.screencols) len = E.screencols;
-            ab_append(ab, &E.row[filerow].render[E.coloff], len);
-        }
+            char* c = &E.row[filerow].render[E.coloff];
+            unsigned char* highlight = &E.row[filerow].highlight[E.coloff];
+            int current_color = -1;
 
+            for (int j = 0; j < len; j++) {
+                if (highlight[j] == HL_NORMAL) {
+                    if (current_color != -1) {
+                        ab_append(ab, "\x1b[39m", 5);
+                        current_color = -1;
+                    }
+                    ab_append(ab, &c[j], 1);
+                } else {
+                    int color = editor_syntax_to_color(highlight[j]);
+                    if (color != current_color) {
+                        current_color = color;
+                        char buf[16];
+                        int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", color);
+                        ab_append(ab, buf, clen);
+                    }
+                    ab_append(ab, &c[j], 1);
+                }
+            }
+            ab_append(ab, "\x1b[39m", 5);
+        }
         ab_append(ab, "\x1b[K", 3);
         ab_append(ab, "\r\n", 2);
     }

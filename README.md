@@ -12,7 +12,7 @@ You can specify the name of the file you want to open:
 
 Main operations on files:
 - __Ctrl+s__ to save your file
-- __Ctrl+q__ to exit the editor'
+- __Ctrl+q__ to exit the editor
 - __Ctrl+f__ to search for a certain word in the file
 
 Useful buttons for file navigation:

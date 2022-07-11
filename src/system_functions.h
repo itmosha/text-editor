@@ -1,20 +1,9 @@
 #ifndef TEXT_EDITOR_SYSTEM_FUNCTIONS_H
 #define TEXT_EDITOR_SYSTEM_FUNCTIONS_H
 
-#define _DEFAULT_SOURCE
-#define _BSD_SOURCE
-#define _GNU_SOURCE
-
-#include "unistd.h"
-#include "errno.h"
-#include "string.h"
-#include "stdbool.h"
-#include "stdarg.h"
-#include "fcntl.h"
-#include "sys/ioctl.h"
-
 #include "types.h"
 #include "input_output.h"
+#include "highlighting.h"
 
 // mapping a key to corresponding Ctrl+key command
 #define CTRL_KEY(k) ((k) & 0x1f)

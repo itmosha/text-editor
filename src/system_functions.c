@@ -250,6 +250,7 @@ void editor_insert_row(int at, char* s, size_t len) {
 
     E.row[at].rsize = 0;
     E.row[at].render = NULL;
+    E.row[at].highlight = NULL;
     editor_update_row(&E.row[at]);
 
     E.num_rows++;
@@ -290,6 +291,8 @@ void editor_update_row(erow* row) {
     }
     row->render[index] = '\0';
     row->rsize = index;
+
+    editor_update_syntax(row);
 }
 
 int editor_row_cx_to_rx(erow* row, int cx) {
@@ -388,6 +391,7 @@ void editor_delete_char() {
 void editor_free_row(erow* row) {
     free(row->render);
     free(row->chars);
+    free(row->highlight);
 }
 
 void editor_delete_row(int at) {

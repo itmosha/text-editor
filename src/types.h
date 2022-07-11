@@ -1,18 +1,30 @@
 #ifndef TEXT_EDITOR_TYPES_H
 #define TEXT_EDITOR_TYPES_H
 
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+#define _GNU_SOURCE
+
 #include "time.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "termios.h"
 #include "sys/types.h"
 #include "ctype.h"
+#include "unistd.h"
+#include "errno.h"
+#include "string.h"
+#include "stdbool.h"
+#include "stdarg.h"
+#include "fcntl.h"
+#include "sys/ioctl.h"
 
 typedef struct erow {
     int size;
     int rsize;
     char* chars;
     char* render;
+    unsigned char* highlight;
 } erow;
 
 typedef struct append_buffer {
@@ -36,18 +48,21 @@ struct editor_config {
     struct termios orig_termios;
 };
 
-
 enum editor_key {
     BACKSPACE = 127,
     ARROW_LEFT = 1000,
-    ARROW_UP = 1001,
-    ARROW_DOWN = 1002,
-    ARROW_RIGHT = 1003,
-    PAGE_UP = 1004,
-    PAGE_DOWN = 1005,
-    HOME_KEY = 1006,
-    END_KEY = 1007,
-    DEL_KEY = 1008
+    ARROW_UP,
+    ARROW_DOWN,
+    ARROW_RIGHT,
+    PAGE_UP,
+    PAGE_DOWN,
+    HOME_KEY,
+    END_KEY,
+    DEL_KEY
 };
 
+enum editor_highlight {
+    HL_NORMAL = 0,
+    HL_NUMBER
+};
 #endif //TEXT_EDITOR_TYPES_H
