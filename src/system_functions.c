@@ -48,10 +48,11 @@ void editor_execute_keypress() {
 
     switch (c) {
         case '\r':
-            editor_insert_new_line();
+            if (E.mode == INSERT)
+                editor_insert_new_line();
             break;
 
-        case CTRL_KEY('q'):
+        case EXIT_KEY:
             if (E.unsaved && quit_times > 0) {
                 editor_set_status_bar_message("WARNING! File nas unsaved changes. "
                                               "Press Ctrl+q %d more times to quit", quit_times);
@@ -63,56 +64,72 @@ void editor_execute_keypress() {
             exit(0);
 
 
-        case CTRL_KEY('s'):
+        case SAVE_KEY:
             editor_save();
             break;
 
         case HOME_KEY:
-            E.cx = 0;
+            if (E.mode == DEFAULT)
+                E.cx = 0;
             break;
 
         case END_KEY:
-            if (E.cy < E.num_rows)
-                E.cx = E.row[E.cy].size;
+            if (E.mode == DEFAULT)
+                if (E.cy < E.num_rows)
+                    E.cx = E.row[E.cy].size;
             break;
 
-        case CTRL_KEY('f'):
+        case SEARCH_KEY:
+            editor_set_status_bar_message("--SEARCH MODE--");
+            E.mode = SEARCH;
             editor_find();
             break;
 
         case BACKSPACE:
-        case CTRL_KEY('h'):
         case DEL_KEY:
-            if (c == DEL_KEY) editor_move_cursor(ARROW_RIGHT);
-            editor_delete_char();
+            if (E.mode == INSERT) {
+                if (c == DEL_KEY) editor_move_cursor(ARROW_RIGHT);
+                editor_delete_char();
+            }
             break;
 
         case PAGE_UP:
         case PAGE_DOWN: {
-            if (c == PAGE_UP)
-                E.cy = E.rowoff;
-            else {
-                E.cy = E.rowoff + E.screenrows - 1;
-                if (E.cy > E.num_rows) E.cy = E.num_rows;
+            if (E.mode == DEFAULT) {
+                if (c == PAGE_UP)
+                    E.cy = E.rowoff;
+                else {
+                    E.cy = E.rowoff + E.screenrows - 1;
+                    if (E.cy > E.num_rows) E.cy = E.num_rows;
+                }
+                int times = E.screenrows;
+                while (times--)
+                    editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
             }
-            int times = E.screenrows;
-            while (times--)
-                editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
         } break;
+
+        case INSERT_KEY:
+            editor_set_status_bar_message("--INSERT MODE--");
+            E.mode = INSERT;
+            break;
 
         case ARROW_LEFT:
         case ARROW_UP:
         case ARROW_DOWN:
         case ARROW_RIGHT:
-            editor_move_cursor(c);
+            if (E.mode == DEFAULT)
+                editor_move_cursor(c);
             break;
 
         case CTRL_KEY('l'):
         case '\x1b':
+            editor_set_status_bar_message("--DEFAULT MODE--");
+            E.mode = DEFAULT;
             break;
 
         default:
-            editor_insert_char(c);
+            if (E.mode == INSERT)
+                editor_insert_char(c);
             break;
     }
     quit_times = QUIT_TIMES;
@@ -146,6 +163,7 @@ void editor_init() {
     E.status_message[0] = '\0';
     E.unsaved = 0;
     E.syntax = NULL;
+    E.mode = DEFAULT;
 
    if (get_window_size(&E.screenrows, &E.screencols) == -1)
         kill("Unable to get window size in editor_init() function");
@@ -239,6 +257,7 @@ void editor_open(char* filename) {
     free(line);
     fclose(file);
     E.unsaved = 0;
+    editor_set_status_bar_message("HELP: CTRL+q = quit | Ctrl+s = save | Ctrl+f = find");
 }
 
 void editor_insert_row(int at, char* s, size_t len) {

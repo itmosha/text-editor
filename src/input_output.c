@@ -9,8 +9,11 @@ int editor_read_key() {
             kill("Unable to read input in editor_read_key() function");
     }
 
+    if (c == CTRL_KEY('q')) return EXIT_KEY;
+    if (c == CTRL_KEY('s')) return SAVE_KEY;
+
+    // ESCAPE SEQUENCES
     if (c == '\x1b') {
-        // READ AN ESCAPE SEQUENCE
         char seq[3];
 
         if (read(STDIN_FILENO, &seq[0], 1) != 1) return '\x1b';
@@ -44,13 +47,19 @@ int editor_read_key() {
         }
         return '\x1b';
     } else {
-        // FOR REGULAR KEYS
-
+        // REGULAR KEYS
         switch (c) {
             case 'h': return ARROW_LEFT;
             case 'j': return ARROW_DOWN;
             case 'k': return ARROW_UP;
             case 'l': return ARROW_RIGHT;
+            case 'J': return PAGE_DOWN;
+            case 'K': return PAGE_UP;
+            case 'H': return HOME_KEY;
+            case 'L': return END_KEY;
+            case 'i': return INSERT_KEY;
+            case 's': return SEARCH_KEY;
+            default: return c;
         }
     }
 }

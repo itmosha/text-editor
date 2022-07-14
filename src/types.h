@@ -54,6 +54,7 @@ struct editor_syntax {
 };
 
 struct editor_config {
+    int mode;
     int cx, cy;
     int rx;
     int screenrows;
@@ -70,6 +71,12 @@ struct editor_config {
     struct termios orig_termios;
 };
 
+enum editor_mode {
+    DEFAULT = 1,
+    INSERT,
+    SEARCH
+};
+
 enum editor_key {
     BACKSPACE = 127,
     ARROW_LEFT = 1000,
@@ -80,7 +87,11 @@ enum editor_key {
     PAGE_DOWN,
     HOME_KEY,
     END_KEY,
-    DEL_KEY
+    DEL_KEY,
+    EXIT_KEY,
+    SAVE_KEY,
+    SEARCH_KEY,
+    INSERT_KEY
 };
 
 enum editor_highlight {
